@@ -30,16 +30,19 @@ exports.handler = function(event, context, callback) {
 
 		// Get the Body data.
 		var body = JSON.parse(event.body)
-		console.log(body.action, body);
+		console.log('Action', body.action, 'Body', body);
 
 		const index = client.initIndex(body.data.contentTypeName);
 
+		// If the action is to delete, then we do it now and stop the code.
 		if (body.action === "content:delete") {
 			index.deleteObject(body.data.contentId, () => {
 				callback(null, {
 					statusCode: 200,
 					body: "Removed Index item"
 				});
+
+				return;
 			})
 		}
 
@@ -66,13 +69,18 @@ exports.handler = function(event, context, callback) {
 		}).then(res => {
 			return res.json();
 		}).then(json => {
+
+			// Update the Id.
 			json.objectID = json._id
 
 			index.addObject(json, () => {
+				console.log(`Indexed ${body.data.contentTypeName} id: ${body.data.contentId} `)
+
 		    callback(null, {
 			    statusCode: 200,
 			    body: "Webhook Handler"
 		    });
+
 			})
 		})
 

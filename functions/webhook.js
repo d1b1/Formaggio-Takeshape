@@ -23,9 +23,7 @@ const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
 // }
 
 exports.handler = function(event, context, callback) {
-
-		console.log('event.httpMethod', event.httpMethod);
-		
+	
 		if (event.httpMethod !== "POST") {
 	    return { statusCode: 405, body: "Method Not Allowed" };
 	  }

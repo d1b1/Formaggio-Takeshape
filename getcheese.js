@@ -4,29 +4,11 @@ const fetch = require('node-fetch')
 
 const query = `
 {
-	getCheese(_id: "bcb600ee-3645-4a76-b7c2-b9f7db1272cb") {
+	getLookups(_id: "b661330a-cd8d-4e57-8b46-a6b37c3d89c6") {
 		_id
-		location {
-			city
-			state
-		}
-		milk
-		name
-		photo {
-			_id
-			caption
-			credit
-			description
-			filename
-			mimeType
-			path
-			sourceUrl
-			title
-			uploadStatus
-		}
+		query
 	}
 }
-
 `;
 
 

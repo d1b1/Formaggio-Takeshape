@@ -1,4 +1,8 @@
-const fetch = require('node-fetch')
+// const fetch = require('node-fetch')
+const fetch = require('node-fetch').default;
+const axios = require('axios')
+const request = require('request')
+
 const _ = require('underscore')
 const algoliasearch = require('algoliasearch');
 
@@ -7,6 +11,14 @@ const TAKESHAPE_PROJECTID = process.env.TAKESHAPE_PROJECTID
 const TAKESHAPE_KEY = process.env.TAKESHAPE_KEY
 const ALGOLIA_APPID = process.env.ALGOLIA_APPID
 const ALGOLIA_ADMIN_KEY = process.env.ALGOLIA_ADMIN_KEY
+
+// const ALGOLIA_ADMIN_KEY = "c7d544340ed7864d6255f9a38ba7a74e"
+// const TAKESHAPE_KEY = "1c372ec850af4f1180db4290bba0850b"
+// const TAKESHAPE_PROJECTID = "733a9f1a-977f-4637-bc04-8ad63d8ac13a"
+// const ALGOLIA_APPID = "OBBTFVLBPT"
+
+const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
+const index = client.initIndex('cheese');
 
 var query = `{
  getCheeseList {
@@ -24,49 +36,25 @@ var query = `{
 	      texture
 	    }
 	    description
-	    labelOrPhoto {
-	      _id
-	      caption
-	      credit
-	      description
-	      filename
-	      mimeType
-	      path
-	      sourceUrl
-	      title
-	      uploadStatus
-	    }
 		}
 	}
 }`
 
-// var key = '1c372ec850af4f1180db4290bba0850b';
-// var projectID = '733a9f1a-977f-4637-bc04-8ad63d8ac13a';
-// var appID = 'OBBTFVLBPT'
-// var adminKey = 'c7d544340ed7864d6255f9a38ba7a74e';
+exports.handler = function(event, context, callback) {
 
-function rebuild() {
+	fetch(`https://api.takeshape.io/project/${TAKESHAPE_PROJECTID}/graphql`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${TAKESHAPE_KEY}`
+		},
+		body: JSON.stringify({ query })
+	}).then(res => {
+		return res.json();
+	}).then(res => {
+			var items = res.data.getCheeseList.items
+			var list = [];
 
-	return new Promise((resolve, reject) => {
-
-		console.log(process.env.TAKESHAPE_PROJECTID);
-
-		const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
-		const index = client.initIndex('cheese');
-
-		fetch(`https://api.takeshape.io/project/${TAKESHAPE_PROJECTID}/graphql`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${TAKESHAPE_KEY}`
-			},
-			body: JSON.stringify({query})
-		}).then(res => {
-			return res.json();
-		}).then(json => {
-			var items = json.data.getCheeseList.items
-
-			var list = []
 			_.each(items, item => {
 				var object = item
 				item.objectID = item._id;
@@ -75,32 +63,22 @@ function rebuild() {
 			})
 
 			index
-				.addObject(list)
-				.then((data) => {
-					console.log('All done', data);
-					resolve('done')
-				})
-				.catch(err => {
-					console.log(err);
-					reject(err)
+			.addObjects(list)
+			.then((data) => {
+				console.log('Indexed', data);
+
+				callback(null, {
+					statusCode: 200,
+					body: "Rebuild all handlers"
 				});
-
-		});
-	})
-}
-
-
-exports.handler = function(event, context, callback) {
-
-		// ALGOLIA_ADMIN_KEY = "c7d544340ed7864d6255f9a38ba7a74e",
-		// TAKESHAPE_KEY = "1c372ec850af4f1180db4290bba0850b",
-		// TAKESHAPE_PROJECTID = "733a9f1a-977f-4637-bc04-8ad63d8ac13a"
-
-		rebuild().then(() => {
-			callback(null, {
-				statusCode: 200,
-				body: "Rebuild all handlers"
+			})
+			.catch(err => {
+				console.log('Got an Eror', err);
+				callback(err, {
+					statusCode: 500,
+					body: err.message
+				});
 			});
-		})
+	});
 
 }

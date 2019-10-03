@@ -49,7 +49,7 @@ function rebuild() {
 
 	return new Promise((resolve, reject) => {
 
-		console.log('process.env.TAKESHAPE_PROJECTID', process.env.TAKESHAPE_PROJECTID);
+		console.log(process.env.TAKESHAPE_PROJECTID);
 
 		const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
 		const index = client.initIndex('cheese');
@@ -65,23 +65,26 @@ function rebuild() {
 			return res.json();
 		}).then(json => {
 			var items = json.data.getCheeseList.items
-			console.log('here', items);
 
+			var list = []
 			_.each(items, item => {
 				var object = item
 				item.objectID = item._id;
-				if (item.photo)
-					item.photoUrl = 'https://images.takeshape.io/' + item.photo.path;
-
-				index
-					.addObject(object)
-					.then((data) => {
-						console.log('here', data);
-					})
-					.catch(err => {
-						console.log(err);
-					});
+				if (item.photo) item.photoUrl = 'https://images.takeshape.io/' + item.photo.path;
+				list.push(item)
 			})
+
+			index
+				.addObject(list)
+				.then((data) => {
+					console.log('All done', data);
+					resolve('done')
+				})
+				.catch(err => {
+					console.log(err);
+					reject(err)
+				});
+
 		});
 	})
 }

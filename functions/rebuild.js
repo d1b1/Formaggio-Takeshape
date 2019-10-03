@@ -50,7 +50,7 @@ function rebuild() {
 	return new Promise((resolve, reject) => {
 
 		console.log('process.env.TAKESHAPE_PROJECTID', process.env.TAKESHAPE_PROJECTID);
-		
+
 		const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
 		const index = client.initIndex('cheese');
 
@@ -89,16 +89,15 @@ function rebuild() {
 
 exports.handler = function(event, context, callback) {
 
-		// Aloglia Client.
-		console.log(context, process.env.ALGOLIA_APPID);
-
 		// ALGOLIA_ADMIN_KEY = "c7d544340ed7864d6255f9a38ba7a74e",
 		// TAKESHAPE_KEY = "1c372ec850af4f1180db4290bba0850b",
 		// TAKESHAPE_PROJECTID = "733a9f1a-977f-4637-bc04-8ad63d8ac13a"
-		rebuild();
 
-    callback(null, {
-    	statusCode: 200,
-    	body: "Rebuild all handlers"
-    });
+		rebuild().then(() => {
+			callback(null, {
+				statusCode: 200,
+				body: "Rebuild all handlers"
+			});
+		})
+
 }

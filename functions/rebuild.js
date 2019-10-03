@@ -66,11 +66,11 @@ exports.handler = function(event, context, callback) {
 			.addObjects(list)
 			.then((data) => {
 				console.log('Indexed', data);
-				var count = data.length;
+				var count = data.objectIDs.length;
 
 				callback(null, {
 					statusCode: 200,
-					body: `Rebuild all takeshape data to the index ${count}` 
+					body: `Rebuild all takeshape data to the index ${count}`
 				});
 			})
 			.catch(err => {

@@ -15,8 +15,9 @@ exports.handler = function(event, context, callback) {
 		//   }
 		// }
 
+		var body = JSON.parse(event.body)
 		const query = ` {
-			getCheese(_id: "${event.body.data.contentId}") {
+			getCheese(_id: "${body.data.contentId}") {
 				_id
 				location {
 					city
@@ -40,7 +41,7 @@ exports.handler = function(event, context, callback) {
 		}`;
 
 		console.log(query);
-		console.log('Got Data', event.body.action, event.body);
+		console.log('Got Data', body.action, body);
 
     callback(null, {
 	    statusCode: 200,

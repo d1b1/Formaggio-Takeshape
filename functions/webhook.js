@@ -71,7 +71,7 @@ exports.handler = function(event, context, callback) {
 		}).then(json => {
 
 			// Update the Id.
-			console.log(json);
+			console.log('Stared', json);
 
 			var obj = json.getCheese
 			obj.objectID = obj._id

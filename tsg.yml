@@ -17,6 +17,10 @@ routes:
     template: pages/makers.html
     context: data/agent.graphql
 
+  tools:
+    path: /tools
+    template: pages/tools.html
+
   search:
     path: /search
     context: data/cheese.graphql

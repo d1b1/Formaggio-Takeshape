@@ -71,8 +71,12 @@ exports.handler = function(event, context, callback) {
 		}).then(json => {
 
 			// Update the Id.
+			console.log(json);
+
 			var obj = json.getCheese
 			obj.objectID = obj._id
+
+			console.log(obj);
 
 			index.addObject(obj, () => {
 				console.log(`Indexed ${body.data.contentTypeName} id: ${body.data.contentId} `)

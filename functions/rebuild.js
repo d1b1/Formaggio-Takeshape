@@ -47,38 +47,43 @@ var query = `{
 
 function rebuild() {
 
-	const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
-	const index = client.initIndex('cheese');
+	return new Promise((resolve, reject) => {
 
-	fetch(`https://api.takeshape.io/project/${TAKESHAPE_PROJECTID}/graphql`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${TAKESHAPE_KEY}`
-		},
-		body: JSON.stringify({query})
-	}).then(res => {
-		return res.json();
-	}).then(json => {
-		var items = json.data.getCheeseList.items
-		console.log('here', items);
+		console.log('process.env.TAKESHAPE_PROJECTID', process.env.TAKESHAPE_PROJECTID);
+		
+		const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
+		const index = client.initIndex('cheese');
 
-		_.each(items, item => {
-			var object = item
-			item.objectID = item._id;
-			if (item.photo)
-				item.photoUrl = 'https://images.takeshape.io/' + item.photo.path;
+		fetch(`https://api.takeshape.io/project/${TAKESHAPE_PROJECTID}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${TAKESHAPE_KEY}`
+			},
+			body: JSON.stringify({query})
+		}).then(res => {
+			return res.json();
+		}).then(json => {
+			var items = json.data.getCheeseList.items
+			console.log('here', items);
 
-			index
-				.addObject(object)
-				.then((data) => {
-					console.log('here', data);
-				})
-				.catch(err => {
-					console.log(err);
-				});
-		})
-	});
+			_.each(items, item => {
+				var object = item
+				item.objectID = item._id;
+				if (item.photo)
+					item.photoUrl = 'https://images.takeshape.io/' + item.photo.path;
+
+				index
+					.addObject(object)
+					.then((data) => {
+						console.log('here', data);
+					})
+					.catch(err => {
+						console.log(err);
+					});
+			})
+		});
+	})
 }
 
 

@@ -70,10 +70,8 @@ exports.handler = function(event, context, callback) {
 			return res.json();
 		}).then(json => {
 
-			// Update the Id.
-			console.log('Stared', json);
-
-			var obj = json.data.getCheese
+			var obj = json.data.getCheese;
+			console.log('obj', typeof json, obj)
 			obj.objectID = obj._id
 
 			console.log(obj);

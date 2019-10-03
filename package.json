@@ -36,7 +36,10 @@
     "takeshape-cli": "^4.97.0"
   },
   "dependencies": {
+    "algoliasearch": "^3.35.0",
     "bulma": "^0.7.5",
-    "netlify-lambda": "^1.6.3"
+    "netlify-lambda": "^1.6.3",
+    "node-fetch": "^2.6.0",
+    "underscore": "^1.9.1"
   }
 }

@@ -1,2 +1,5 @@
 [build]
   functions = "./lambda"
+
+[context]
+	environment = { ALGOLIA_APPID = "OBBTFVLBPT" }

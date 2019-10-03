@@ -1,50 +1,79 @@
+const fetch = require('node-fetch').default;
+const _ = require('underscore')
+const algoliasearch = require('algoliasearch');
+
+const TAKESHAPE_PROJECTID = process.env.TAKESHAPE_PROJECTID
+const TAKESHAPE_KEY = process.env.TAKESHAPE_KEY
+const ALGOLIA_APPID = process.env.ALGOLIA_APPID
+const ALGOLIA_ADMIN_KEY = process.env.ALGOLIA_ADMIN_KEY
+
+const client = algoliasearch(ALGOLIA_APPID, ALGOLIA_ADMIN_KEY);
+
+// 	{
+//   "action": "content:create",
+//   "meta": {
+//     "projectId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+//     "userId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+//   },
+//   "data": {
+//     "contentId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+//     "contentTypeName": "article",
+//     "isSingleton": false
+//   }
+// }
 
 exports.handler = function(event, context, callback) {
 
-		console.log('here', event.body, typeof event.body);
-		// 	{
-		//   "action": "content:create",
-		//   "meta": {
-		//     "projectId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-		//     "userId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-		//   },
-		//   "data": {
-		//     "contentId": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-		//     "contentTypeName": "article",
-		//     "isSingleton": false
-		//   }
-		// }
+		if (event.httpMethod !== "POST") {
+	    return { statusCode: 405, body: "Method Not Allowed" };
+	  }
 
+		// Get the Body data.
 		var body = JSON.parse(event.body)
+		console.log(body.action, body);
+
+		const index = client.initIndex(body.data.contentTypeName);
+
+		if (body.action === "content:delete") {
+			index.deleteObject(body.data.contentId, () => {
+				callback(null, {
+					statusCode: 200,
+					body: "Removed Index item"
+				});
+			})
+		}
+
 		const query = ` {
 			getCheese(_id: "${body.data.contentId}") {
 				_id
-				location {
-					city
-					state
-				}
-				milk
 				name
-				photo {
-					_id
-					caption
-					credit
-					description
-					filename
-					mimeType
-					path
-					sourceUrl
-					title
-					uploadStatus
+				source
+				characteristics {
+					milk
+					texture
+					style
 				}
 			}
 		}`;
 
-		console.log(query);
-		console.log('Got Data', body.action, body);
+		fetch(`https://api.takeshape.io/project/${TAKESHAPE_PROJECTID}/graphql`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${TAKESHAPE_KEY}`
+			},
+			body: JSON.stringify({ query })
+		}).then(res => {
+			return res.json();
+		}).then(json => {
+			json.objectID = json._id
 
-    callback(null, {
-	    statusCode: 200,
-	    body: "Webhook Handler"
-    });
+			index.addObject(json, () => {
+		    callback(null, {
+			    statusCode: 200,
+			    body: "Webhook Handler"
+		    });
+			})
+		})
+
 }

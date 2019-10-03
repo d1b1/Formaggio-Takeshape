@@ -1,8 +1,4 @@
-// const fetch = require('node-fetch')
 const fetch = require('node-fetch').default;
-const axios = require('axios')
-const request = require('request')
-
 const _ = require('underscore')
 const algoliasearch = require('algoliasearch');
 

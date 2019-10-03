@@ -1,6 +1,7 @@
 
 exports.handler = function(event, context, callback) {
 
+		console.log('here', event.body, typeof event.body);
 		// 	{
 		//   "action": "content:create",
 		//   "meta": {

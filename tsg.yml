@@ -7,9 +7,9 @@ routes:
     path: /
     template: pages/index.html
 
-  cheeses:
-    path: /cheese
-    template: pages/cheese.html
+  cheeseList:
+    path: /cheeses
+    template: pages/cheeseList.html
     context: data/cheese.graphql
 
   makers:

@@ -1,3 +1,0 @@
-[build]
-	kcommand = "netlify-lambda build functions"
-	functions = "lamdba"
